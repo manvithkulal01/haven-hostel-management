@@ -1,0 +1,18 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-change_me}
+      MYSQL_DATABASE: ${DB_NAME:-pg_hostel}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - pg_hostel_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${DB_PASSWORD:-change_me}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+volumes:
+  pg_hostel_mysql:

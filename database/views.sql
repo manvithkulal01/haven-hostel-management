@@ -1,0 +1,4 @@
+USE pg_hostel;
+CREATE OR REPLACE VIEW v_bed_occupancy AS SELECT r.id room_id,r.room_number,r.floor,b.id bed_id,b.label bed_label,b.monthly_rent,CASE WHEN a.id IS NULL THEN 'Available' ELSE 'Occupied' END availability,t.id tenant_id,t.full_name tenant_name,a.start_date FROM rooms r JOIN beds b ON b.room_id=r.id LEFT JOIN allocations a ON a.bed_id=b.id AND a.end_date IS NULL LEFT JOIN tenants t ON t.id=a.tenant_id WHERE r.is_active=1 AND b.is_active=1;
+CREATE OR REPLACE VIEW v_payment_totals AS SELECT a.id allocation_id,t.id tenant_id,t.full_name tenant_name,a.agreed_rent,COALESCE(SUM(p.amount),0) total_paid FROM allocations a JOIN tenants t ON t.id=a.tenant_id LEFT JOIN rent_payments p ON p.allocation_id=a.id GROUP BY a.id,t.id,t.full_name,a.agreed_rent;
+CREATE OR REPLACE VIEW v_open_complaints AS SELECT c.id,c.category,c.priority,c.status,c.created_at,t.full_name tenant_name FROM complaints c JOIN tenants t ON t.id=c.tenant_id WHERE c.status<>'Resolved';
